@@ -2,6 +2,8 @@ package com.example.BookingHotel.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import jakarta.security.auth.message.ClientAuth;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,18 +17,19 @@ import java.util.function.Function;
 @Service
 public class JWTUtils {
 
-    private static final long EXPIRATION_TIME = 1000 * 60 *24 *7; //FOR SEVEN DAYS
+    private static final long EXPIRATION_TIME = 1000 * 60 * 24 * 7; //FOR SEVEN DAYS
 
     private final SecretKey key;
 
     public JWTUtils() {
         String secretString = "Wmc1JGtGM1htNyFiVHE4QExwWXZOOX5ySjJXNEMjb0t6NkQmZlI3XngNQHBMa1l2IU0yVzUjb1Q4JHpKM0NuOUQ=";
-        byte[] keyBytes = Base64.getDecoder().decode(secretString.getBytes(StandardCharsets.UTF_8));
-        this.key = new SecretKeySpec(keyBytes, "HmacSHA256");
 
+        byte[] keyBytes = Base64.getDecoder().decode(secretString.getBytes(StandardCharsets.UTF_8));
+
+        this.key = new SecretKeySpec(keyBytes, "HmacSHA256");
     }
 
-    public String generateToken(UserDetails userDetails){
+    public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -35,13 +38,13 @@ public class JWTUtils {
                 .compact();
     }
     
-    public String extractUsername(String token){
+    public String extractUsername(String token) {
         return extractClaims(token, Claims::getSubject);
     }
 
-  private <T> T extractClaims(String token, Function<Claims, T> claimsTFunction){
-        return claimsTFunction.apply(Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload());
-  }
+    private <T> T extractClaims(String token, Function<Claims, T> claimsFunction) {
+        return claimsFunction.apply(Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload());
+    }
 
   public boolean isValidToken(String token, UserDetails userDetails){
         final String username = extractUsername(token);

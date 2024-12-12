@@ -23,6 +23,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
     @Autowired
     private JWTUtils jwtUtils;
+
     @Autowired
     private CachingUserDetailsService cachingUserDetailsService;
 
@@ -35,7 +36,8 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         final String jwtToken;
         final String userEmail;
 
-        if (authHeader == null || authHeader.isBlank()) {
+
+        if(authHeader == null || authHeader.isBlank()) {
             filterChain.doFilter(request, response);
             return;
         }
